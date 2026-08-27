@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*/__pycache__/
+*/*/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+.venv/
+venv/
+ENV/
+
+# Caches & temporary files
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+
+# Large binary weights
+models/transformer/*.safetensors
+models/transformer/*.bin
+*.safetensors
+*.bin
+
+# OS specific
+.DS_Store
+*/.DS_Store
+*/*/.DS_Store
+Thumbs.db
+.idea/
+.vscode/
