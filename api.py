@@ -39,6 +39,24 @@ app.add_middleware(
 )
 
 
+# --- Root Welcome Endpoint ---
+@app.get("/", tags=["General"])
+def root():
+    """Root endpoint providing service status and available endpoint map."""
+    return {
+        "service": "RealConnect AI Backend",
+        "status": "online",
+        "version": "1.0.0",
+        "docs_url": "/docs",
+        "endpoints": {
+            "spam_check": "GET /spam-check?number=+1234567890",
+            "voice_analysis": "POST /voice-analysis",
+            "verify_speaker": "POST /verify-speaker",
+            "health": "GET /health"
+        }
+    }
+
+
 # --- Request and Response Schemas ---
 
 class SpamCheckResponse(BaseModel):
