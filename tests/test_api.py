@@ -87,3 +87,4 @@ def test_verify_speaker_endpoint():
     data2 = res2.json()
     assert data2["verified"] is True
     assert data2["status"] == "Verified"
+
