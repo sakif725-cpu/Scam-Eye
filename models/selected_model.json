@@ -1,0 +1,52 @@
+{
+    "active_model_type": "baseline_logistic_regression",
+    "model_name": "TF-IDF + Logistic Regression",
+    "description": "Champion model selected by Recall (100.0%) and F1 (100.0%)",
+    "selection_timestamp": "2026-08-27T16:47:31.542447",
+    "metrics": {
+        "model_name": "TF-IDF + Logistic Regression",
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+            [
+                7,
+                0
+            ],
+            [
+                0,
+                7
+            ]
+        ],
+        "classification_report": {
+            "Genuine": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1-score": 1.0,
+                "support": 7.0
+            },
+            "Fraud": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1-score": 1.0,
+                "support": 7.0
+            },
+            "accuracy": 1.0,
+            "macro avg": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1-score": 1.0,
+                "support": 14.0
+            },
+            "weighted avg": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1-score": 1.0,
+                "support": 14.0
+            }
+        },
+        "test_sample_count": 14
+    }
+}

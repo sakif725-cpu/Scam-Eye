@@ -1,0 +1,140 @@
+{
+    "baseline_logistic_regression": {
+        "model_name": "TF-IDF + Logistic Regression",
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+            [
+                7,
+                0
+            ],
+            [
+                0,
+                7
+            ]
+        ],
+        "classification_report": {
+            "Genuine": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1-score": 1.0,
+                "support": 7.0
+            },
+            "Fraud": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1-score": 1.0,
+                "support": 7.0
+            },
+            "accuracy": 1.0,
+            "macro avg": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1-score": 1.0,
+                "support": 14.0
+            },
+            "weighted avg": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1-score": 1.0,
+                "support": 14.0
+            }
+        },
+        "test_sample_count": 14
+    },
+    "baseline_naive_bayes": {
+        "model_name": "TF-IDF + Multinomial Naive Bayes",
+        "accuracy": 0.9286,
+        "precision": 0.875,
+        "recall": 1.0,
+        "f1_score": 0.9333,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+            [
+                6,
+                1
+            ],
+            [
+                0,
+                7
+            ]
+        ],
+        "classification_report": {
+            "Genuine": {
+                "precision": 1.0,
+                "recall": 0.8571428571428571,
+                "f1-score": 0.9230769230769231,
+                "support": 7.0
+            },
+            "Fraud": {
+                "precision": 0.875,
+                "recall": 1.0,
+                "f1-score": 0.9333333333333333,
+                "support": 7.0
+            },
+            "accuracy": 0.9285714285714286,
+            "macro avg": {
+                "precision": 0.9375,
+                "recall": 0.9285714285714286,
+                "f1-score": 0.9282051282051282,
+                "support": 14.0
+            },
+            "weighted avg": {
+                "precision": 0.9375,
+                "recall": 0.9285714285714286,
+                "f1-score": 0.9282051282051282,
+                "support": 14.0
+            }
+        },
+        "test_sample_count": 14
+    },
+    "transformer_distilbert": {
+        "model_name": "DistilBERT (Fine-Tuned)",
+        "accuracy": 0.7857,
+        "precision": 0.8333,
+        "recall": 0.7143,
+        "f1_score": 0.7692,
+        "roc_auc": 0.9592,
+        "confusion_matrix": [
+            [
+                6,
+                1
+            ],
+            [
+                2,
+                5
+            ]
+        ],
+        "classification_report": {
+            "Genuine": {
+                "precision": 0.75,
+                "recall": 0.8571428571428571,
+                "f1-score": 0.8,
+                "support": 7.0
+            },
+            "Fraud": {
+                "precision": 0.8333333333333334,
+                "recall": 0.7142857142857143,
+                "f1-score": 0.7692307692307693,
+                "support": 7.0
+            },
+            "accuracy": 0.7857142857142857,
+            "macro avg": {
+                "precision": 0.7916666666666667,
+                "recall": 0.7857142857142857,
+                "f1-score": 0.7846153846153847,
+                "support": 14.0
+            },
+            "weighted avg": {
+                "precision": 0.7916666666666667,
+                "recall": 0.7857142857142857,
+                "f1-score": 0.7846153846153846,
+                "support": 14.0
+            }
+        },
+        "test_sample_count": 14
+    }
+}
