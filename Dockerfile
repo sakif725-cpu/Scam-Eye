@@ -16,8 +16,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy project files
 COPY . .
 
-# Expose FastAPI port
-EXPOSE 8000
+# Hugging Face Spaces default port
+EXPOSE 7860
 
-# Run FastAPI backend by default (or override for Streamlit)
-CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run FastAPI backend service on port 7860
+CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "7860"]

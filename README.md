@@ -1,3 +1,13 @@
+---
+title: AI Fraud Detection System
+emoji: 🛡️
+colorFrom: blue
+colorTo: red
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # 🛡️ AI Fraud Call and Message Detector
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/)
