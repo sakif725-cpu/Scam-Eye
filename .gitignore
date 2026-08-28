@@ -17,6 +17,7 @@ ENV/
 .coverage
 htmlcov/
 *.log
+*.ses
 
 # Large binary weights
 models/transformer/*.safetensors

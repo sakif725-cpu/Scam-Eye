@@ -1,23 +1,22 @@
+# Use lightweight Python 3.11 image
 FROM python:3.11-slim
 
+# Set working directory
 WORKDIR /app
 
-# Install system dependencies for audio processing
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ffmpeg \
-    libsndfile1 \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+# Enable unbuffered logs so requests show immediately in Render dashboard
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
 
-# Install Python dependencies
+# Install system dependencies & Python packages
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project files
-COPY . .
+# Copy your application code
+COPY main.py .
 
-# Hugging Face Spaces default port
-EXPOSE 7860
+# Expose default port
+EXPOSE 8000
 
-# Run FastAPI backend service on port 7860
-CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "7860"]
+# Run the app (main.py dynamically reads Render's $PORT)
+CMD ["python", "main.py"]
