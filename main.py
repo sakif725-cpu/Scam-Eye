@@ -65,7 +65,7 @@ class SpamCheckResponse(BaseModel):
 
 
 class VoiceDataRequest(BaseModel):
-    audioBase64: Optional[str] = Field(default="", description="Base64-encoded audio bytes (16kHz WAV/PCM)")
+    audioBase64: Optional[str] = Field(default="", description="Base64-encoded 16kHz Mono 16-bit WAV/PCM")
 
 
 class VoiceAnalysisResponse(BaseModel):
@@ -73,9 +73,10 @@ class VoiceAnalysisResponse(BaseModel):
     isScammer: bool = False
     confidence: float = 0.8
     riskScore: int = 5
-    riskLevel: str = "LOW"
+    riskLevel: str = "LOW"  # "LOW", "MEDIUM", "HIGH"
     intention: str = "💬 Natural Human Conversation"
     summary: str = "Natural human voice biomarkers verified."
+    behaviorSummary: str = "Natural human voice biomarkers verified."
     threatIndicators: List[str] = Field(default_factory=list)
     recommendation: str = "Safe call. Continue conversation normally."
     scamType: Optional[str] = None
@@ -104,7 +105,7 @@ SPEAKER_PROFILES: Dict[str, Dict[str, float]] = {}
 
 
 def analyze_acoustic_features(audio_bytes: bytes) -> Dict[str, float]:
-    """Extracts lightweight acoustic features from raw audio bytes."""
+    """Extracts lightweight acoustic features from 16kHz Mono 16-bit WAV/PCM audio bytes."""
     data = None
     samplerate = 16000
 
@@ -116,22 +117,22 @@ def analyze_acoustic_features(audio_bytes: bytes) -> Dict[str, float]:
             samplerate = wf.getframerate()
             frames = wf.readframes(wf.getnframes())
             if sampwidth == 2:
-                data = np.frombuffer(frames, dtype=np.int16).astype(np.float32) / 32768.0
+                data = np.frombuffer(frames, dtype='<i2').astype(np.float32) / 32768.0
             elif sampwidth == 1:
                 data = (np.frombuffer(frames, dtype=np.uint8).astype(np.float32) - 128.0) / 128.0
             else:
-                data = np.frombuffer(frames, dtype=np.int16).astype(np.float32) / 32768.0
+                data = np.frombuffer(frames, dtype='<i2').astype(np.float32) / 32768.0
 
             if n_channels > 1 and data is not None:
                 data = data.reshape(-1, n_channels).mean(axis=1)
     except Exception:
         pass
 
-    # 2. Try raw PCM buffer conversion (skip WAV header if present)
+    # 2. Try raw PCM buffer conversion (skip 44-byte standard RIFF header if present)
     if data is None or len(data) == 0:
         try:
             offset = 44 if len(audio_bytes) > 44 and audio_bytes[:4] == b'RIFF' else 0
-            data = np.frombuffer(audio_bytes[offset:], dtype=np.int16).astype(np.float32) / 32768.0
+            data = np.frombuffer(audio_bytes[offset:], dtype='<i2').astype(np.float32) / 32768.0
         except Exception:
             data = np.array([0.05, 0.05], dtype=np.float32)
 
@@ -148,7 +149,7 @@ def analyze_acoustic_features(audio_bytes: bytes) -> Dict[str, float]:
     energy = float(np.mean(data ** 2))
     zero_crossings = float(np.mean(np.diff(np.sign(data)) != 0)) if len(data) > 1 else 0.1
     std_dev = float(np.std(data))
-    rms = float(np.sqrt(np.mean((data * 32767.0) ** 2)))
+    rms = float(np.sqrt(np.mean((data * 32768.0) ** 2)))
 
     return {
         "energy": energy,
@@ -213,6 +214,7 @@ def analyze_voice(data: VoiceDataRequest):
             riskLevel="LOW",
             intention="Monitoring live conversation",
             summary="Audio stream active",
+            behaviorSummary="Audio stream active",
             threatIndicators=["Live audio monitoring active"],
             recommendation="Speak naturally. AI Guard is actively listening."
         )
@@ -229,11 +231,12 @@ def analyze_voice(data: VoiceDataRequest):
             riskLevel="LOW",
             intention="Audio decoding warning",
             summary="Incoming audio snippet could not be parsed.",
+            behaviorSummary="Incoming audio snippet could not be parsed.",
             threatIndicators=["Unrecognized audio format"],
             recommendation="Continue conversation."
         )
 
-    # 1. Acoustic / Vocoder Check
+    # 1. Acoustic / Vocoder Check on 16kHz Mono 16-bit audio
     acoustics = analyze_acoustic_features(audio_bytes)
     is_bot = False
     confidence = 0.85
@@ -270,6 +273,7 @@ def analyze_voice(data: VoiceDataRequest):
         has_bot = any(bk in lower_trans for bk in bot_keywords)
 
         if has_phishing or has_bot:
+            summary_msg = "Caller is attempting social engineering to steal financial security credentials." if has_phishing else "Automated voice script detected."
             return VoiceAnalysisResponse(
                 isBot=is_bot or has_bot,
                 isScammer=True,
@@ -278,7 +282,8 @@ def analyze_voice(data: VoiceDataRequest):
                 riskScore=98 if has_phishing else 95,
                 riskLevel="HIGH",
                 intention="🚨 Financial Theft: Caller is coercing user into revealing card/banking credentials under a fake pretext" if has_phishing else "🚨 Automated Bot: Robocall trying to illicit response",
-                summary="Caller is attempting social engineering to steal financial security credentials." if has_phishing else "Automated voice script detected.",
+                summary=summary_msg,
+                behaviorSummary=summary_msg,
                 threatIndicators=[
                     "Direct solicitation of confidential credentials / OTP / CVV" if has_phishing else "Automated interactive voice prompt",
                     "Artificial urgency & coercive pretext",
@@ -289,6 +294,7 @@ def analyze_voice(data: VoiceDataRequest):
 
     # 3. Behavioral Classification based on acoustic biomarkers
     if is_bot:
+        summary_msg = "Robotic/AI generated voice signature detected."
         return VoiceAnalysisResponse(
             isBot=True,
             isScammer=True,
@@ -297,7 +303,8 @@ def analyze_voice(data: VoiceDataRequest):
             riskScore=95,
             riskLevel="HIGH",
             intention="🚨 Synthetic Deepfake Robocall: Automated voice synthesis attempting social engineering",
-            summary="Robotic/AI generated voice signature detected.",
+            summary=summary_msg,
+            behaviorSummary=summary_msg,
             threatIndicators=[
                 "Synthetic vocoder acoustic biomarker detected",
                 "Unnatural pitch modulation & metallic frequency spectrum"
@@ -306,6 +313,7 @@ def analyze_voice(data: VoiceDataRequest):
         )
 
     # Clean / Normal Human conversation
+    normal_summary = "Natural human voice biomarkers verified."
     return VoiceAnalysisResponse(
         isBot=False,
         isScammer=False,
@@ -313,7 +321,8 @@ def analyze_voice(data: VoiceDataRequest):
         riskScore=5,
         riskLevel="LOW",
         intention="💬 Natural Human Conversation",
-        summary="Natural human voice biomarkers verified.",
+        summary=normal_summary,
+        behaviorSummary=normal_summary,
         threatIndicators=[
             "Natural conversational dynamic",
             "No malicious phishing vectors detected"
