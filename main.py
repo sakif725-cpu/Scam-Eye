@@ -377,16 +377,36 @@ def analyze_voice(data: VoiceDataRequest):
         is_bot = True
         confidence = 0.90
 
-    # 2. Optional NLP / Transcript evaluation
-    # 2. In-Call Speech-to-Text Transcription via Google Speech Recognition
+    # 2. In-Call Speech-to-Text Transcription with Multi-Accent & Regional Support
     transcript = ""
     try:
         import io
         import speech_recognition as sr
         recognizer = sr.Recognizer()
+        recognizer.energy_threshold = 200
+        recognizer.dynamic_energy_threshold = True
         with sr.AudioFile(io.BytesIO(audio_bytes)) as source:
             audio_data = recognizer.record(source)
-        transcript = recognizer.recognize_google(audio_data)
+
+        # Primary: en-IN (Indian English - natively understands 'crore', 'lakh', 'KYC', 'OTP', 'CVV')
+        try:
+            transcript = recognizer.recognize_google(audio_data, language="en-IN")
+        except Exception:
+            # Fallback: en-US
+            transcript = recognizer.recognize_google(audio_data, language="en-US")
+
+        if transcript:
+            # Contextual phoneme correction for common ASR acoustic distortions
+            corrections = {
+                r"\b(grove cycle|5 grove|grove)\b": "crore",
+                r"\b(cvp|c v p|c v c)\b": "CVV",
+                r"\b(k y see|k y c)\b": "KYC",
+                r"\b(oh t p|o t p)\b": "OTP",
+                r"\b(flipers|fliper)\b": "Flipkart",
+            }
+            for pattern, repl in corrections.items():
+                transcript = re.sub(pattern, repl, transcript, flags=re.IGNORECASE)
+
         logger.info("Speech recognition transcribed: %s", transcript)
     except Exception as e:
         logger.debug("Speech recognition silence or pass: %s", e)
