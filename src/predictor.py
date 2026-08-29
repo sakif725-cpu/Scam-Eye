@@ -10,7 +10,11 @@ import logging
 from pathlib import Path
 import joblib
 import numpy as np
-import torch
+
+try:
+    import torch
+except ImportError:
+    torch = None
 
 from config import settings
 from src.data_preprocessor import clean_text_safely
@@ -36,7 +40,7 @@ class FraudPredictor:
         self.baseline_model = None
         self.transformer_model = None
         self.transformer_tokenizer = None
-        self.device = torch.device(settings.DEVICE)
+        self.device = torch.device(settings.DEVICE) if (torch is not None and hasattr(torch, "device")) else "cpu"
         self.load_model()
 
     def get_selected_model_type(self) -> str:
