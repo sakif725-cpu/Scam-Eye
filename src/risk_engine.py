@@ -57,19 +57,19 @@ def compute_risk_assessment(
     synthesized_risk = max(0.0, min(round(synthesized_risk, 4), 1.0))
 
     # Determine Risk Tier
-    if synthesized_risk >= 0.80 or (fraud_probability >= 0.70 and has_critical):
+    if synthesized_risk >= 0.75 or (fraud_probability >= 0.65 and has_critical):
         risk_level = "CRITICAL"
         recommended_action = (
             "🚨 DO NOT ENGAGE: This communication exhibits critical fraud signatures. "
             "Never share OTPs, PINs, or click any attached links. Report and block the sender immediately."
         )
-    elif synthesized_risk >= 0.55 or (ai_predicted_label == settings.LABEL_FRAUD):
+    elif synthesized_risk >= 0.60 or (fraud_probability >= 0.65 and indicator_count > 0) or has_critical or has_high:
         risk_level = "HIGH"
         recommended_action = (
             "⚠️ HIGH FRAUD PROBABILITY: The message contains strong fraud characteristics or suspicious links. "
             "Do not transfer money or share personal documents. Verify directly via the official service app."
         )
-    elif synthesized_risk >= 0.30 or indicator_count > 0:
+    elif indicator_count > 0 or synthesized_risk >= 0.55:
         risk_level = "MEDIUM"
         recommended_action = (
             "⚡ EXERCISE CAUTION: Some promotional or unverified elements were detected. "
@@ -83,7 +83,7 @@ def compute_risk_assessment(
         )
 
     # Human-readable prediction and confidence
-    if ai_predicted_label == settings.LABEL_FRAUD or fraud_probability >= settings.CLASSIFICATION_THRESHOLD:
+    if risk_level in ["HIGH", "CRITICAL"] or (fraud_probability >= 0.60 and indicator_count > 0):
         prediction_str = "FRAUD"
         confidence_pct = round(fraud_probability * 100, 2)
     else:
