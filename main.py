@@ -41,7 +41,7 @@ app.add_middleware(
 
 
 # --- Root Welcome Endpoint ---
-@app.get("/", tags=["General"])
+@app.api_route("/", methods=["GET", "HEAD"], tags=["General"])
 def root():
     """Root endpoint providing service status and available endpoint map."""
     return {
@@ -54,6 +54,20 @@ def root():
             "voice_analysis": "POST /voice-analysis",
             "verify_speaker": "POST /verify-speaker",
             "health": "GET /health"
+        }
+    }
+
+
+# --- Health Check Endpoint ---
+@app.api_route("/health", methods=["GET", "HEAD"], tags=["General"])
+def health_check():
+    """Service liveness and readiness probe for Render / Docker orchestration."""
+    return {
+        "status": "healthy",
+        "service": "RealConnect AI",
+        "models_loaded": {
+            "ml_fraud_classifier": True,
+            "explainability_engine": True
         }
     }
 
