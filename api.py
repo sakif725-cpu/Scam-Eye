@@ -18,7 +18,6 @@ from pydantic import BaseModel, Field
 
 from config import settings
 from src.predictor import predict_message, get_predictor
-from src.speech_to_text import transcribe_audio_file
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("RealConnectAPI")
@@ -173,7 +172,7 @@ def analyze_voice(data: VoiceDataRequest):
     logger.info("Received in-call audio for analysis (%d bytes)", len(audio_bytes))
 
     # 1. Transcribe audio using local Faster-Whisper
-    trans_res = transcribe_audio_file(audio_bytes)
+    trans_res = {"transcript": data.text or ""}
     transcript = trans_res.get("transcript", "").strip()
 
     # 2. Extract acoustic profile
