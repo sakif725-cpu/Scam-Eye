@@ -251,6 +251,27 @@ class CallSessionManager:
 call_sessions = CallSessionManager()
 
 
+class PredictRequest(BaseModel):
+    text: str = Field(..., description="Message text to analyze for fraud/scam")
+
+
+@app.post("/predict", tags=["SMS & Text"])
+def predict_endpoint(data: PredictRequest):
+    """Analyze SMS/chat message text for fraud, phishing, and scam patterns."""
+    text = data.text.strip() if data.text else ""
+    print("\n" + "=" * 65)
+    print(f"📥 [SMS/TEXT FRAUD SCAN RECEIVED]: \"{text}\"")
+    print("=" * 65)
+    from src.predictor import predict_message
+    res = predict_message(text)
+    is_scam = res.get("prediction") == "FRAUD"
+    risk_level = res.get("risk_level", "LOW")
+    risk_score_pct = int(float(res.get("risk_score", 0.0)) * 100)
+    print(f"🛡️ [TEXT SCAN RESULT] -> Prediction: {'🚨 FRAUD' if is_scam else '✅ SAFE'} | Risk Level: {risk_level} ({risk_score_pct}%)")
+    print("=" * 65 + "\n")
+    return res
+
+
 # --- 2. Endpoint: AI Bot / Scammer Behavioral Analysis (Live In-Call) ---
 @app.post("/voice-analysis", response_model=VoiceAnalysisResponse, tags=["In-Call"])
 def analyze_voice(data: VoiceDataRequest):
