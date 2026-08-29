@@ -259,16 +259,18 @@ class PredictRequest(BaseModel):
 def predict_endpoint(data: PredictRequest):
     """Analyze SMS/chat message text for fraud, phishing, and scam patterns."""
     text = data.text.strip() if data.text else ""
-    print("\n" + "=" * 65)
-    print(f"📥 [SMS/TEXT FRAUD SCAN RECEIVED]: \"{text}\"")
-    print("=" * 65)
+    print("\n" + "=" * 65, flush=True)
+    print(f"📥 [SMS/TEXT FRAUD SCAN RECEIVED]: \"{text}\"", flush=True)
+    print("=" * 65, flush=True)
+    logger.info("[SMS/TEXT FRAUD SCAN RECEIVED]: \"%s\"", text)
     from src.predictor import predict_message
     res = predict_message(text)
     is_scam = res.get("prediction") == "FRAUD"
     risk_level = res.get("risk_level", "LOW")
     risk_score_pct = int(float(res.get("risk_score", 0.0)) * 100)
-    print(f"🛡️ [TEXT SCAN RESULT] -> Prediction: {'🚨 FRAUD' if is_scam else '✅ SAFE'} | Risk Level: {risk_level} ({risk_score_pct}%)")
-    print("=" * 65 + "\n")
+    print(f"🛡️ [TEXT SCAN RESULT] -> Prediction: {'🚨 FRAUD' if is_scam else '✅ SAFE'} | Risk Level: {risk_level} ({risk_score_pct}%)", flush=True)
+    print("=" * 65 + "\n", flush=True)
+    logger.info("[TEXT SCAN RESULT] -> %s | Risk: %s (%s%%)", '🚨 FRAUD' if is_scam else '✅ SAFE', risk_level, risk_score_pct)
     return res
 
 
@@ -285,11 +287,11 @@ def analyze_voice(data: VoiceDataRequest):
         text_snippet = data.text.strip()
         full_context = call_sessions.add_turn(session_key, text_snippet)
 
-        print("\n" + "=" * 65)
-        print(f"📥 [AI IN-CALL TEXT RECEIVED]: \"{text_snippet}\"")
+        print("\n" + "=" * 65, flush=True)
+        print(f"📥 [AI IN-CALL TEXT RECEIVED]: \"{text_snippet}\"", flush=True)
         if full_context != text_snippet:
-            print(f"📜 [ACCUMULATED CALL CONTEXT]: \"{full_context}\"")
-        print("=" * 65)
+            print(f"📜 [ACCUMULATED CALL CONTEXT]: \"{full_context}\"", flush=True)
+        print("=" * 65, flush=True)
         logger.info("[AI IN-CALL TEXT RECEIVED]: \"%s\"", text_snippet)
 
         risk_result = None
@@ -311,8 +313,9 @@ def analyze_voice(data: VoiceDataRequest):
             risk_score_pct = int(float(risk_result.get("risk_score", 0.0)) * 100)
             risk_level = risk_result.get("risk_level", "LOW")
 
-            print(f"🛡️ [AI ANALYSIS RESULT] -> Prediction: {'🚨 FRAUD' if is_scam else '✅ SAFE'} | Risk Level: {risk_level} ({risk_score_pct}%) | Intent: {threat_cat}")
-            print("=" * 65 + "\n")
+            print(f"🛡️ [AI ANALYSIS RESULT] -> Prediction: {'🚨 FRAUD' if is_scam else '✅ SAFE'} | Risk Level: {risk_level} ({risk_score_pct}%) | Intent: {threat_cat}", flush=True)
+            print("=" * 65 + "\n", flush=True)
+            logger.info("[AI ANALYSIS RESULT] -> %s | Risk: %s (%s%%) | %s", '🚨 FRAUD' if is_scam else '✅ SAFE', risk_level, risk_score_pct, threat_cat)
 
             return VoiceAnalysisResponse(
                 isBot=False,
@@ -392,11 +395,12 @@ def analyze_voice(data: VoiceDataRequest):
         text_snippet = transcript.strip()
         full_context = call_sessions.add_turn(session_key, text_snippet)
 
-        print("\n" + "=" * 65)
-        print(f"📥 [AI IN-CALL VOICE TRANSCRIBED]: \"{text_snippet}\"")
+        print("\n" + "=" * 65, flush=True)
+        print(f"📥 [AI IN-CALL VOICE TRANSCRIBED]: \"{text_snippet}\"", flush=True)
         if full_context != text_snippet:
-            print(f"📜 [ACCUMULATED CALL CONTEXT]: \"{full_context}\"")
-        print("=" * 65)
+            print(f"📜 [ACCUMULATED CALL CONTEXT]: \"{full_context}\"", flush=True)
+        print("=" * 65, flush=True)
+        logger.info("[AI IN-CALL VOICE TRANSCRIBED]: \"%s\"", text_snippet)
 
         from src.predictor import predict_message
         risk_result = predict_message(full_context)
@@ -411,8 +415,9 @@ def analyze_voice(data: VoiceDataRequest):
         risk_score_pct = int(float(risk_result.get("risk_score", 0.0)) * 100)
         risk_level = risk_result.get("risk_level", "LOW")
 
-        print(f"🛡️ [AI ANALYSIS RESULT] -> Prediction: {'🚨 FRAUD' if is_scam else '✅ SAFE'} | Risk Level: {risk_level} ({risk_score_pct}%) | Intent: {threat_cat}")
-        print("=" * 65 + "\n")
+        print(f"🛡️ [AI ANALYSIS RESULT] -> Prediction: {'🚨 FRAUD' if is_scam else '✅ SAFE'} | Risk Level: {risk_level} ({risk_score_pct}%) | Intent: {threat_cat}", flush=True)
+        print("=" * 65 + "\n", flush=True)
+        logger.info("[AI ANALYSIS RESULT] -> %s | Risk: %s (%s%%) | %s", '🚨 FRAUD' if is_scam else '✅ SAFE', risk_level, risk_score_pct, threat_cat)
 
         return VoiceAnalysisResponse(
             isBot=is_bot,
