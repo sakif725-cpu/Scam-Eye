@@ -388,12 +388,17 @@ def analyze_voice(data: VoiceDataRequest):
         with sr.AudioFile(io.BytesIO(audio_bytes)) as source:
             audio_data = recognizer.record(source)
 
-        # Primary: en-IN (Indian English - natively understands 'crore', 'lakh', 'KYC', 'OTP', 'CVV')
+        # Multi-Lingual Speech-to-Text: en-IN (Indian English / Hinglish) -> hi-IN (Hindi) -> en-US
         try:
             transcript = recognizer.recognize_google(audio_data, language="en-IN")
         except Exception:
-            # Fallback: en-US
-            transcript = recognizer.recognize_google(audio_data, language="en-US")
+            try:
+                transcript = recognizer.recognize_google(audio_data, language="hi-IN")
+            except Exception:
+                try:
+                    transcript = recognizer.recognize_google(audio_data, language="en-US")
+                except Exception:
+                    transcript = ""
 
         if transcript:
             # Contextual phoneme correction for common ASR acoustic distortions
